@@ -201,6 +201,7 @@
   //     return total + number * number;
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
+
   _.reduce = function(collection, iterator, accumulator) {
     if(accumulator === undefined) {
       accumulator = collection[0];
@@ -219,32 +220,203 @@
 
 //PART 2
 
-
-
   // Determine if the array or object contains a given value (using `===`).
   _.contains = function(collection, target) {
     // TIP: Many iteration problems can be most easily expressed in
     // terms of reduce(). Here's a freebie to demonstrate!
-    return _.reduce(collection, function(wasFound, item) {
-      if (wasFound) {
+    return _.reduce(collection, function(accumulator, ele) {
+      if (accumulator) {
         return true;
       }
-      return item === target;
+      return ele === target;
     }, false);
   };
 
 
+
+/*
+_.every = function(collection, truthTest)
+
+  _each(if truthtest === false)
+   return false
+
+   else return true
+
+
   // Determine whether all of the elements match a truth test.
-  _.every = function(collection, iterator) {
+  _.every = function(collection, truthTest) {
     // TIP: Try re-using reduce() here.
+    return _.reduce(collection, function(accumulator, ele) {
+      if (truthTest === ) {
+        return false;
+      }
+    }, true);
+  };
+*/
+
+/*
+  _.each = function(collection, iterator) {
+
+    var i;
+
+    //if using an array
+    if(Array.isArray(collection)){
+      for(i = 0; i < collection.length; i++){
+        iterator(collection[i],i,collection);
+      }
+
+    //if using an object
+    }else{
+      for(i in collection){
+       iterator(collection[i],i,collection);
+      }
+    }
+
   };
 
+  _.reduce = function(collection, iterator, accumulator) {
+
+    //if no accumulator is given, use [0] as the first entry
+    if(accumulator === undefined) {
+      accumulator = collection[0];
+      for(var i = 1; i < collection.length; i++) {
+        accumulator = iterator(accumulator,collection[i]);
+      }
+      return accumulator;
+
+    //otherwise, accumulator is used as the first entry
+    }else{
+    _.each(collection,function(ele, i, array){
+        accumulator = iterator(accumulator,ele);
+      });
+      return accumulator;
+    }
+  };
+*/
+
+//  _each(if truthtest === false)
+//   return false
+
+ //  else return true
+
+
+// TURNS OUT THE PROBLEM WAS _.IDENTITY -- it goes _.identity(val){return val} and we were passing it _.identity(accumulator,ele) which of course just returns accumulator. That's why our solution worked for questions with tests but failed for ones that used _.identity.
+
+_.every = function(collection, truthTest) {
+    var isItStillTrue = true;
+
+    if(truthTest == undefined){
+      //console.log("truthTest = identity");
+      truthTest = _.identity;
+    }
+
+    //if using an array
+    if(Array.isArray(collection)){
+      for(var i = 0; i < collection.length; i++){
+        //console.log("RESULTS ","\ni: ",i,"\nis still true: ",isItStillTrue,"\nele: ",collection[i],"\ntruth result: ",truthTest(collection[i]));
+        if(truthTest(collection[i]) == false || truthTest(collection[i]) ==  undefined || truthTest(collection[i]) ==  null){
+          //console.log("Previous was true");
+          return false;
+        }
+      }
+      return true;
+    }
+
+
+    //if using an object
+    else{
+      for(var i in collection){
+        //console.log("results ",i,isItStillTrue,collection[i],truthTest(collection[i]));
+        if(truthTest(collection[i]) == false || truthTest(collection[i]) ==  undefined || truthTest(collection[i]) ==  null){
+          //console.log("Previous was true");
+          return false;
+        }
+      }
+      return true;
+    }
+  };
+
+console.log("\n\nTESTING TESTING\n\n");
+
+var testArray1 = [true,true,false],
+    testArray2 = [true,true];
+
+function tester(accumulator,ele){
+  console.log(ele);
+  if(ele > 10){console.log("tested true");return true;}
+  else{console.log("tested false");return false;}
+}
+
+  console.log("test1",_.every(testArray1),"\n\n");
+
+  console.log("test2",_.every(testArray2),"\n\n");
+
+
+/*
+  _.every = function(collection, truthTest) {
+    return _.reduce(collection, function(accumulator, ele) {
+   //   console.log(accumulator,ele);
+
+      //if no truthTest is given, use identity
+      if(truthTest === undefined){
+        truthTest = _.identity;
+      }
+
+      //if truthTest(ele) is not true, return false
+      if(!truthTest(ele)) {
+        return false;
+      //otherwise return accumulator (which should be true)
+      }else {
+        return accumulator;
+      }
+    }, true);
+
+  };
+*/
+
+
+
+
+/*
+_.some =function(collection, iterator)
+
+forEach(check if iterator = true)
+if iterator = true, always return true
+if iterator = false, check next
+
+
+*/
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+    return _.reduce(collection, function(accumulator, ele) {
+      //if iterator is undefined, give it an identity
+      if (iterator === undefined) {
+        iterator = _.identity;
+        return true;
+      }
+
+      console.log(ele,accumulator,iterator(ele));
+      //If iterator returns true, always return true
+      if(accumulator === true){
+        return true;
+      }
+
+      //check truth test
+      if(iterator(ele) === true){
+        return true;
+      }else{
+        return accumulator;
+      }
+
+    },false);
+
   };
 
+ // console.log(_.some(testArray1,tester()));
+
+//  console.log(_.some(testArray2,tester()));
 
   /**
    * OBJECTS
