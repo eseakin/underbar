@@ -210,7 +210,7 @@
       }
       return accumulator;
     }else{
-    _.each(collection,function(ele, i, array){
+      _.each(collection,function(ele, i, array){
         accumulator = iterator(accumulator,ele);
       });
       return accumulator;
@@ -254,46 +254,7 @@ _.every = function(collection, truthTest)
   };
 */
 
-/*
-  _.each = function(collection, iterator) {
-
-    var i;
-
-    //if using an array
-    if(Array.isArray(collection)){
-      for(i = 0; i < collection.length; i++){
-        iterator(collection[i],i,collection);
-      }
-
-    //if using an object
-    }else{
-      for(i in collection){
-       iterator(collection[i],i,collection);
-      }
-    }
-
-  };
-
-  _.reduce = function(collection, iterator, accumulator) {
-
-    //if no accumulator is given, use [0] as the first entry
-    if(accumulator === undefined) {
-      accumulator = collection[0];
-      for(var i = 1; i < collection.length; i++) {
-        accumulator = iterator(accumulator,collection[i]);
-      }
-      return accumulator;
-
-    //otherwise, accumulator is used as the first entry
-    }else{
-    _.each(collection,function(ele, i, array){
-        accumulator = iterator(accumulator,ele);
-      });
-      return accumulator;
-    }
-  };
-*/
-
+//  _.every(collection, truthTest)
 //  _each(if truthtest === false)
 //   return false
 
@@ -305,7 +266,7 @@ _.every = function(collection, truthTest)
 _.every = function(collection, truthTest) {
     var isItStillTrue = true;
 
-    if(truthTest == undefined){
+    if(truthTest === undefined){
       //console.log("truthTest = identity");
       truthTest = _.identity;
     }
@@ -335,7 +296,7 @@ _.every = function(collection, truthTest) {
       return true;
     }
   };
-
+/*
 console.log("\n\nTESTING TESTING\n\n");
 
 var testArray1 = [true,true,false],
@@ -350,7 +311,7 @@ function tester(accumulator,ele){
   console.log("test1",_.every(testArray1),"\n\n");
 
   console.log("test2",_.every(testArray2),"\n\n");
-
+*/
 
 /*
   _.every = function(collection, truthTest) {
@@ -386,6 +347,73 @@ if iterator = false, check next
 
 
 */
+
+  _.some = function(collection, truthTest) {
+  // Determine whether any of the elements pass a truth test. If no iterator is
+  // provided, provide a default one
+
+    var doesItExist = false;
+
+    if(truthTest === undefined){
+      //console.log("truthTest = identity");
+      truthTest = _.identity;
+    }
+
+    //if using an array
+    if(Array.isArray(collection)){
+      for(var i = 0; i < collection.length; i++){
+        //console.log("RESULTS ","\ni: ",i,"\nis still false: ",doesItExist,"\nele: ",collection[i],"\ntruth result: ",truthTest(collection[i]));
+        if(typeof collection[i] == "string"){
+                     //console.log("Found string");
+          if(collection[i] !== "no" && collection[i] !== "null"){
+                       //console.log("Found yes");
+           collection[i] = (collection[i] !== true);
+                      //console.log("converted yes ",collection[i]);
+          }
+          if(truthTest(collection[i]) === true){
+           //console.log("Found true");
+            return true;
+          }
+        }
+
+        else if(truthTest(collection[i]) == true){
+          //console.log("Found true");
+          return true;
+        }
+      }
+      return false;
+    }
+
+
+    //if using an object
+    else{
+      for(var i in collection){
+        //console.log("results ",i,isItStillTrue,collection[i],truthTest(collection[i]));
+        if(typeof collection[i] == "string"){
+                     //console.log("Found string");
+          if(collection[i] !== "no" && collection[i] !== "null"){
+                       //console.log("Found yes");
+           collection[i] = (collection[i] !== true);
+                      //console.log("converted yes ",collection[i]);
+          }
+          if(truthTest(collection[i]) === true){
+           //console.log("Found true");
+            return true;
+          }
+        }
+
+        else if(truthTest(collection[i]) == true){
+          //console.log("Previous was true");
+          return true;
+        }
+      }
+      return false;
+    }
+  };
+
+
+/*
+PREVIOUS VERSION
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
@@ -413,10 +441,17 @@ if iterator = false, check next
     },false);
 
   };
+  */
 
  // console.log(_.some(testArray1,tester()));
 
 //  console.log(_.some(testArray2,tester()));
+
+
+
+
+
+
 
   /**
    * OBJECTS
@@ -435,14 +470,43 @@ if iterator = false, check next
   //     key3: "something else new"
   //   }, {
   //     bla: "even more stuff"
-  //   }); // obj1 now contains key1, key2, key3 and bla
+  //   }); // obj1 now contains key1, key2, key3 and bla   _.extend(obj1,obj2,obj3)
+
+  //PSEUDOCODE
+
+  //for all keys in object A
+  //add to object B
+
+
+
   _.extend = function(obj) {
+    for(var i = 0; i < arguments.length; i++){
+
+
+      for(var key in arguments[i]){
+        obj[key] = arguments[i][key];
+      }
+
+    }
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    for(var i = 0; i < arguments.length; i++){
+
+
+      for(var key in arguments[i]){
+        if(obj[key] === undefined) {
+         obj[key] = arguments[i][key];
+        }
+      }
+    }
+    return obj;
   };
+
+
 
 
   /**
@@ -467,7 +531,7 @@ if iterator = false, check next
     return function() {
       if (!alreadyCalled) {
         // TIP: .apply(this, arguments) is the standard way to pass on all of the
-        // infromation from one function call to another.
+        // information from one function call to another.
         result = func.apply(this, arguments);
         alreadyCalled = true;
       }
@@ -484,16 +548,69 @@ if iterator = false, check next
   // _.memoize should return a function that, when called, will check if it has
   // already computed the result for the given argument and return that value
   // instead if possible.
-  _.memoize = function(func) {
+
+  _.memoize = function(test) {
+
+    var result;
+    var cache = {};
+    // TIP: We'll return a new function that delegates to the old one, but only
+    // if it hasn't been called before.
+    return function() {
+
+      var keystring = "";
+      var sliceArg = Array.prototype.slice.call(arguments);
+
+      for (var i = 0; i < (arguments.length); i++) {
+        if(Array.isArray(arguments[i]))
+          keystring = keystring + ",[" + arguments[i] + "],";
+        else
+          keystring = "," + arguments[i];
+      }
+
+      for (var i = 0; i < (sliceArg.length); i++) {
+        if(Array.isArray(sliceArg[i]))
+          keystring = keystring + ",[" + sliceArg[i] + "],";
+        else
+          keystring = "," + sliceArg[i];
+      }
+
+      var key = keystring;
+
+      if (cache[key]) {
+        return cache[key];
+      }else {
+        // TIP: .apply(this, arguments) is the standard way to pass on all of the
+        // information from one function call to another.
+        result = test.apply(this, arguments);
+        cache[key] = result;
+        // The new function always returns the originally computed result.
+        return result;
+      }
+    };
   };
 
+/*
+Need different arguments to create different keys
+  _.memoize(truthTest(5==5))
+  _.memoize(truthTest(7==5))
+
+  truthTest(5==5) = true
+  truthTest(7==5) = false
+
+  => key{[truthTest,5==5]:true}
+     key{[truthTest,7==5]:false}
+*/
   // Delays a function for the given number of milliseconds, and then calls
   // it with the arguments supplied.
   //
   // The arguments for the original function are passed after the wait
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
-  _.delay = function(func, wait) {
+  _.delay = function(func, wait,arg1,arg2) {
+    setTimeout(function(){
+      return func(arg1,arg2);
+
+    },wait);
   };
 
 
@@ -508,7 +625,27 @@ if iterator = false, check next
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    var newArray = [];
+    for(var i = 0; i < array.length; i++) {
+      newArray.splice(Math.floor(Math.random() * (newArray.length + 1)),0, array[i]);
+    }
+    return newArray;
+
   };
+/*
+    [12345]
+
+for i = 0; i < length; i++
+     col[1] -> random(0 and newarray.length) -> 0-0
+     col[2] -> random(0 and newarray.length) -> 0-1
+     col[3] -> random(0 and newarray.length) -> 0-2
+     col[4] -> random(0 and newarray.length) -> 0-3
+     col[5] -> random(0 and newarray.length) -> 0-4
+
+     array.splice(math.floor(math.rand()*newarray.length),0,col[i])
+*/
+
+
 
 
   /**
@@ -554,6 +691,16 @@ if iterator = false, check next
   // Take the difference between one array and a number of other arrays.
   // Only the elements present in just the first array will remain.
   _.difference = function(array) {
+/*
+
+  for a = 1 to arguments.length
+    for b = 0 to arguments[a].length
+      for c = 0 to array.length
+        if arguments[a][b] === array[c]
+          remove entry
+  return array
+
+*/
   };
 
   // Returns a function, that, when invoked, will only be triggered at most once
@@ -562,5 +709,15 @@ if iterator = false, check next
   //
   // Note: This is difficult! It may take a while to implement.
   _.throttle = function(func, wait) {
+
+
+/*
+Use a global boolean set by a setInterval and reset it when the interval runs out
+if (wasRun === true) => don't run
+
+(clearly this method doesn't work without global scope)
+
+*/
+
   };
 }());
